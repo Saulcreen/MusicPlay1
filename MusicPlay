@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Reproductor de MÃºsica</title>
+    <style>
+        body {
+            background-image: url('https://pm1.aminoapps.com/6507/c2c7e2178266f4066a2de3ff11c496361b0d9c11_hq.jpg');
+            background-size: cover;
+            background-position: center;
+            color: #00ffff; /* Cambiado a color galÃ¡ctico (cyan) */
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        header {
+            padding: 20px;
+            text-align: center;
+            font-size: 2em;
+            color: #ffffff; /* Cambiado a blanco */
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        label.upload-label {
+            background-color: #3498db;
+            color: #ffffff;
+            padding: 15px 25px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 1.2em;
+            transition: background-color 0.3s ease;
+        }
+
+        label.upload-label:hover {
+            background-color: #2980b9;
+        }
+
+        /* Imagen en la parte inferior */
+        #bottomImage {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            width: 100px; /* Ajusta el tamaÃ±o de acuerdo a tus preferencias */
+            height: auto;
+            z-index: 999;
+            cursor: pointer;
+        }
+
+        /* Estilo para la ventana emergente */
+        #modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        #modal-content {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 5px;
+            text-align: center;
+            color: #000000; /* Cambiado a negro */
+        }
+
+        #close-modal {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1 style="color: #00ffff;">Music Play</h1>
+    </header>
+
+    <label for="fileInput" class="upload-label">Seleccionar Archivo de MÃºsica</label>
+    <input type="file" accept="audio/*" id="fileInput" onchange="playMusic()" style="display:none;">
+
+    <!-- Imagen en la parte inferior -->
+    <img id="bottomImage" src="https://i.pinimg.com/originals/33/95/df/3395df7768394656795e48ddead0ecc3.png" alt="Imagen Inferior" onclick="toggleMusicList()">
+
+    <!-- Contenido de la ventana emergente -->
+    <div id="modal">
+        <div id="modal-content">
+            <span id="close-modal" onclick="toggleMusicList()">â</span>
+            <h2>Tus canciones</h2>
+            <ul id="music-list"></ul>
+        </div>
+    </div>
+
+    <script>
+        let audioPlayer;
+        let playlist = [];
+        let currentIndex = 0;
+
+        function playMusic() {
+            if (!audioPlayer) {
+                audioPlayer = new Audio();
+                audioPlayer.controls = true;
+                audioPlayer.onended = playNextMusic;
+                document.body.appendChild(audioPlayer);
+            } else {
+                // Detener y reiniciar la canciÃ³n actual
+                audioPlayer.pause();
+                audioPlayer.currentTime = 0;
+            }
+
+            const fileInput = document.getElementById('fileInput');
+            const selectedFile = fileInput.files[0];
+
+            if (selectedFile) {
+                const objectURL = URL.createObjectURL(selectedFile);
+                playlist.push(objectURL);
+                currentIndex = playlist.length - 1;
+
+                // Reproducir la nueva canciÃ³n
+                playNextMusic();
+            }
+        }
+
+        function playNextMusic() {
+            if (playlist.length > 0) {
+                currentIndex = (currentIndex + 1) % playlist.length;
+                const nextMusic = playlist[currentIndex];
+                audioPlayer.src = nextMusic;
+                audioPlayer.play();
+            }
+        }
+
+        function toggleMusicList() {
+            const modal = document.getElementById('modal');
+            const musicList = document.getElementById('music-list');
+
+            // Limpiar la lista actual
+            musicList.innerHTML = "";
+
+            // Agregar cada canciÃ³n a la lista
+            playlist.forEach((music, index) => {
+                const listItem = document.createElement('li');
+                const fileName = music.split('/').pop(); // Obtener solo el nombre del archivo
+                listItem.textContent = fileName;
+                musicList.appendChild(listItem);
+            });
+
+            // Mostrar o ocultar la ventana emergente
+            modal.style.display = (modal.style.display === 'none' || modal.style.display === '') ? 'flex' : 'none';
+        }
+    </script>
+
+</body>
+</html>
